@@ -1,4 +1,6 @@
-# Created by Axel Lenz - alenz  ---> alpsanto.com
+# Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+
 # Compare the installed software on two Windows machines.
 # Compare based on DisplayName and DisplayVersion only. 
 # Run PS as admin
