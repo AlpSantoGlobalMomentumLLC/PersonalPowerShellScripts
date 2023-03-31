@@ -4,45 +4,38 @@
 $computers = Get-Content "computers.txt"
 
 # Set the intervals for the main loop and summary loop
-$interval = 15 * 60 * 1000 # 15 minutes in milliseconds
-$summaryInterval = 3 * 60 * 60 * 1000 # 3 hours in milliseconds
+$interval = 1 * 60 * 1000 # 1 minute in milliseconds
+$summaryInterval = 3 * 60 * 1000 # 10 minutes in milliseconds
 
 function Test-NetworkSpeed {
-    param (
-        [string]$Computer,
-        [string]$Name
-    )
-
+    param ($Computer, $Name)
     $result = Test-Connection -ComputerName $Computer -Count 1 -ErrorAction SilentlyContinue
-
-    $speed = if ($result) { $result.ResponseTime } else { 0 }
-    $status = if ($result) { "Online" } else { "Offline" }
-
-    return @{
+    @{
         Computer = $Computer
         Name = $Name
-        Speed = $speed
-        Status = $status
+        Speed = if ($result) { $result.ResponseTime } else { 0 }
+        Status = if ($result) { "Online" } else { "Offline" }
         Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     }
 }
 
 function Write-Summary {
-    $allResults = Import-Csv -Path "results.csv"
-    $summaryData = @()
-
-    foreach ($computerLine in $computers) {
-        $computerData = $computerLine.Split(',')
+    $allResults = Import-Csv -Path "results.txt"
+    $summaryData = $computers | ForEach-Object {
+        $computerData = $_.Split(',')
         $computer = $computerData[0]
         $name = $computerData[1]
-
-        $computerResults = $allResults | Where-Object {$_.Computer -eq $computer}
-        $onlineResults = $computerResults | Where-Object {$_.Status -eq "Online"}
-        $best = $onlineResults | Measure-Object -Property Speed -Minimum | Select-Object -ExpandProperty Minimum
-        $worst = $onlineResults | Measure-Object -Property Speed -Maximum | Select-Object -ExpandProperty Maximum
-        $average = $onlineResults | Measure-Object -Property Speed -Average | Select-Object -ExpandProperty Average
-
-        $summaryData += [PSCustomObject]@{
+        $onlineResults = $allResults | Where-Object {$_.Computer -eq $computer -and $_.Status -eq "Online"}
+        if ($onlineResults) {
+            $best = ($onlineResults | Measure-Object -Property Speed_ms -Minimum).Minimum
+            $worst = ($onlineResults | Measure-Object -Property Speed_ms -Maximum).Maximum
+            $average = ($onlineResults | Measure-Object -Property Speed_ms -Average).Average
+        } else {
+            $best = $null
+            $worst = $null
+            $average = $null
+        }
+        [PSCustomObject]@{
             Computer = $computer
             Name = $name
             Best = $best
@@ -51,29 +44,25 @@ function Write-Summary {
             Timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
         }
     }
-
-    $summaryData | Export-Csv -Path "summary.csv" -NoTypeInformation -Append
+    $summaryData | Export-Csv -Path "summary.txt" -NoTypeInformation -Append
 }
 
-$csvHeader = "Computer,Name,Speed,Status,Timestamp`n"
-Add-Content -Path "results.csv" -Value $csvHeader
+$header = "Computer,Name,Speed_ms,Status,Timestamp"
+if (-not (Get-Content -Path "results.txt" -First 1) -eq $header) {
+    Add-Content -Path "results.txt" -Value $header
+}
 $lastSummaryTime = Get-Date
 
 while ($true) {
     foreach ($computerLine in $computers) {
         $computerData = $computerLine.Split(',')
-        $computer = $computerData[0]
-        $name = $computerData[1]
-
-        $testResult = Test-NetworkSpeed -Computer $computer -Name $name
-        $testResultString = "$($testResult.Computer),$($testResult.Name),$($testResult.Speed),$($testResult.Status),$($testResult.Timestamp)"
-        Add-Content -Path "results.csv" -Value $testResultString
+        $testResult = Test-NetworkSpeed -Computer $computerData[0] -Name $computerData[1]
+        Add-Content -Path "results.txt" -Value "$($testResult.Computer),$($testResult.Name),$($testResult.Speed),$($testResult.Status),$($testResult.Timestamp)"
     }
 
-    $currentTime = Get-Date
-    if (($currentTime - $lastSummaryTime).TotalMilliseconds -ge $summaryInterval) {
+    if (((Get-Date) - $lastSummaryTime).TotalMilliseconds -ge $summaryInterval) {
         Write-Summary
-        $lastSummaryTime = $currentTime
+        $lastSummaryTime = Get-Date
     }
 
     Start-Sleep -Milliseconds $interval
