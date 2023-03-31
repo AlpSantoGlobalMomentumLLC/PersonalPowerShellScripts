@@ -1,4 +1,5 @@
-# Created by Axel Lenz - alenz  ---> alpsanto.com
+# Created by Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
 
 # Setze den gewünschten Text für den initial_prompt Parameter
 #$initialPromptText = "Welcome to the Mush Facilitator training. During this course, you will learn valuable skills and techniques to effectively guide and support group sessions."
