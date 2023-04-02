@@ -1,6 +1,7 @@
+# Rapair DISM & SFC with with a mounted source
 # Created by Axel Christian Lenz 
 # https://www.linkedin.com/in/axellenz/
-# Rapair DISM & SFC with with a mounted source
+
 
 # Change this variable to your desired path
 $SourcePath = "D:\sources"
