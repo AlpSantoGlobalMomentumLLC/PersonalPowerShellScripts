@@ -1,0 +1,55 @@
+# Created by Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+# Rapair DISM & SFC with with a mounted source
+
+# Change this variable to your desired path
+$SourcePath = "D:\sources"
+
+function Get-WimInfo {
+    param([string]$WimFile)
+    $wimInfo = dism /Get-WimInfo /WimFile:$WimFile
+    return $wimInfo
+}
+
+function Select-WimVersion {
+    param([string[]]$WimInfo)
+    Write-Host "Available Windows image versions:"
+    $versions = @()
+    foreach ($line in $WimInfo) {
+        if ($line -match "Index") {
+            $nameLine = ($WimInfo[$WimInfo.IndexOf($line) + 1] -split ':')[1].Trim()
+            $index = ($line -split ':')[1].Trim()
+            $versions += $index
+            Write-Host "$line - $nameLine"
+        }
+    }
+    $selectedVersion = Read-Host -Prompt 'Enter the index number of the desired version'
+    if ($versions -contains $selectedVersion) {
+        return $selectedVersion
+    }
+    else {
+        Write-Host "Invalid selection. Please choose a valid index number."
+        return Select-WimVersion -WimInfo $WimInfo
+    }
+}
+
+function Repair-WindowsImage {
+    param([string]$Source, [int]$VersionIndex)
+
+    $commands = @(
+        "dism /online /cleanup-image /scanhealth",
+        "dism /online /cleanup-image /checkhealth",
+        "dism /online /cleanup-image /restorehealth /source:WIM:$Source\install.wim:$VersionIndex /limitaccess",
+        "sfc /scannow"
+    )
+
+    foreach ($command in $commands) {
+        Write-Host "Executing: $command"
+        Invoke-Expression $command
+    }
+}
+
+$wimFile = Join-Path -Path $SourcePath -ChildPath "install.wim"
+$wimInfo = Get-WimInfo -WimFile $wimFile
+$selectedVersion = Select-WimVersion -WimInfo $wimInfo
+Repair-WindowsImage -Source $SourcePath -VersionIndex $selectedVersion
