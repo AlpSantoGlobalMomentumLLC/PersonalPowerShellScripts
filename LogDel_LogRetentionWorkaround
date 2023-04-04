@@ -1,0 +1,48 @@
+# Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+# Variables
+$ServiceName = "Apache2.4"
+$SourceFolder = "D:\xampp\apache\logs\" # Muss mit "\" enden
+$Days = 7
+$ext = "*.log", "*.txt"
+$FileExtensions = "*"
+$DisplayCommands = $true
+#The script performs 4 main tasks: First, it removes all files with the specified file extensions (e.g., *.log, *.txt) in the given folder that are older than a certain number of days. Next, it stops the Apache2.4 service and renames all files without a number in the filename by adding a current date and "_ACL_" to the filename. Finally, the script restarts the Apache2.4 service.
+
+$DateBeforeXDays = (Get-Date).AddDays(-$Days)
+
+# Start Löschscript
+$LogFile = "$SourceFolder\Log_deletion$(get-date -format yyyyMMddHHmmss).txt"
+Start-Transcript $LogFile
+
+Write-Host "--------------------------------------------------------------------------------------"
+Write-Host "Entferne alle Dateien ($ext) im Ordner $SourceFolder, die älter als $Days Tage sind."
+Write-Host "--------------------------------------------------------------------------------------"
+
+Get-ChildItem $SourceFolder\* -Include $ext -Recurse | Where-Object { $_.LastWriteTime -lt $DateBeforeXDays -and -not $_.PSIsContainer } | ForEach-Object { Remove-Item $_.FullName -Force -Verbose }
+
+Write-Host "--------------------------------------------------------------------------------------"
+Write-Host "Stoppe $ServiceName & benenne Dateien ($FileExtensions) ohne Nummern im Namen um."
+Write-Host "--------------------------------------------------------------------------------------"
+
+# Stop Service
+Stop-Service -Name $ServiceName
+if ($DisplayCommands) { Write-Host "$ServiceName service stopped" }
+
+# Start Log Retention Workaround
+Get-ChildItem -Path $SourceFolder -Filter $FileExtensions -File | ForEach-Object {
+if ($_.BaseName -notmatch '\d') {
+$newName = (Get-Date).ToString("yyyyMMdd") + "_ACL_" + $_.Name
+$newPath = Join-Path $SourceFolder $newName
+Rename-Item -Path $_.FullName -NewName $newPath
+if ($DisplayCommands) { Write-Host "File renamed: $($_.Name) -> $newName" }
+}
+}
+
+Write-Host "--------------------------------------------------------------------------------------"
+Write-Host "Starte $ServiceName"
+Write-Host "--------------------------------------------------------------------------------------"
+
+# Start the service
+Start-Service -Name $ServiceName
+if ($DisplayCommands) { Write-Host "$ServiceName service started" }
