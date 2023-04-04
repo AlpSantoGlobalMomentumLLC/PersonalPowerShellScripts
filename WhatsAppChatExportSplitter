@@ -1,0 +1,53 @@
+# Created by Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+#The code provided is a PowerShell script that processes a WhatsApp chat export file, filters out specific content, and saves the remaining messages into separate text files based on the date of each message. It first checks if the target directory exists and creates it if necessary. Then, it reads the content of the source file and iterates through each message. If the message contains a date different from the current date, it writes the content to a new file with a corresponding name. 
+# The script also removes any instances of ----> "Axel C. L." and excludes messages containing "Bild weggelassen," "Audio weggelassen," or "Video weggelassen." 
+# Finally, it adds a "#SelbstgesrächeWhatsApp" tag to the end of each file if it has content.
+
+$sourceFile = "D:\OneDrive\Documents\WhatsAppChatExport\_chat.txt"
+$targetDir = "D:\OneDrive\Documents\WhatsAppChatExport\done"
+$removeText = "Axel C. L.:"
+
+if (!(Test-Path $targetDir)) {
+New-Item -ItemType Directory -Path $targetDir
+}
+
+$regex = "\[(\d{2}\.\d{2}\.\d{2})"
+$messages = Get-Content $sourceFile -Encoding UTF8
+
+$currentDate = ""
+$outFile = $null
+$hasContent = $false
+$firstLine = $true
+
+function WriteEndOfFile {
+param($outFile)
+if ($hasContent) {
+Add-Content -Path $outFile -Value ""
+Add-Content -Path $outFile -Value "#SelbstgesrächeWhatsApp"
+}
+}
+
+foreach ($message in $messages) {
+if ($message -match $regex) {
+$date = [datetime]::ParseExact($matches[1], "yy.MM.dd", $null)
+if ($currentDate -ne $date.ToString("yyyyMMdd")) {
+WriteEndOfFile $outFile
+$currentDate = $date.ToString("yyyyMMdd")
+$outFile = Join-Path $targetDir "${currentDate}_whatsApp.txt"
+$hasContent = $false
+$firstLine = $true
+}
+}
+if ($message -notmatch "Bild weggelassen|Audio weggelassen|Video weggelassen") {
+if (-not $firstLine) {
+Add-Content -Path $outFile -Value ""
+}
+$firstLine = $false
+$modifiedMessage = $message.Replace($removeText, "").Trim()
+Add-Content -Path $outFile -Value $modifiedMessage
+$hasContent = $true
+}
+}
+
+WriteEndOfFile $outFile
