@@ -1,0 +1,49 @@
+# Created by Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+# Add a Prefix + FileName in the first line of all txt files
+# Add a Postfix at the End
+# Konfiguration
+$verzeichnis = "D:\OneDrive\Documents\GitHub\YouTubeChapterGenerator\transcripts"
+$zielVerzeichnis = Join-Path $verzeichnis "done"
+$dateiendung = "*.txt"
+$prefixText = "YouTube Transkript: "
+$postfixText = "#YouTube #AI #DavidShapiro #Transkript Source: "
+
+# Zielverzeichnis erstellen, falls es nicht existiert
+if (!(Test-Path $zielVerzeichnis)) {
+    New-Item -ItemType Directory -Path $zielVerzeichnis
+}
+
+# Alle Dateien mit der angegebenen Dateiendung im Verzeichnis abrufen
+$dateien = Get-ChildItem -Path $verzeichnis -Filter $dateiendung
+
+# Jede Datei im Verzeichnis verarbeiten
+foreach ($datei in $dateien) {
+    Write-Host "Verarbeite Datei: $($datei.Name)"
+
+    # Datei in das Zielverzeichnis kopieren
+    $zielDatei = Join-Path $zielVerzeichnis $datei.Name
+    Copy-Item -Path $datei.FullName -Destination $zielDatei
+
+    # Inhalt der kopierten Datei bearbeiten
+    $inhalt = Get-Content -Path $zielDatei -ErrorAction SilentlyContinue
+
+    if ($inhalt) {
+        # Neuen Inhalt erstellen: Präfix-Text + Dateiname ohne Erweiterung, Leerzeile, ursprünglicher Inhalt, Leerzeile, Postfix-Text
+        $neuerInhalt = @()
+        $dateiNameOhneErweiterung = [System.IO.Path]::GetFileNameWithoutExtension($datei.Name)
+        $neuerInhalt += "${prefixText}${dateiNameOhneErweiterung}"
+        $neuerInhalt += ""
+        $neuerInhalt += $inhalt
+        $neuerInhalt += ""
+        $neuerInhalt += $postfixText
+
+        # Debugging-Informationen ausgeben
+        Write-Host "Erste Zeile des neuen Inhalts: $($neuerInhalt[0])"
+
+        # Neuen Inhalt in die kopierte Datei schreiben
+        Set-Content -Path $zielDatei -Value $neuerInhalt
+    } else {
+        Write-Host "Fehler beim Lesen der Datei: $($zielDatei)"
+    }
+}
