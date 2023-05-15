@@ -1,0 +1,98 @@
+# The purpose of this script is to translate audio content to English text using OpenAI's audio translation API (Whisper AI). This script is written in PowerShell and allows the user to select an audio file via a graphical file selection dialog, sends this audio file to the OpenAI API, and then saves the response (the translated text) into a text file in the same directory as the input audio file, using the same base name but with a .txt extension.
+# 
+# Axel Christian Lenz 
+# https://www.linkedin.com/in/axellenz/
+
+# You need PowerShell 7 https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3
+# You have to replace "YOURKEY" - https://platform.openai.com/account/api-keys
+
+# Here is a step-by-step overview of what the script does:
+# Loads necessary assemblies to utilize Windows.Forms functionality for file selection.
+# Presents an "OpenFileDialog" to the user to select an audio file for translation.
+# Generates a response file name based on the input file's name but with a .txt extension.
+
+# Load assemblies for OpenFileDialog and FolderBrowserDialog
+Add-Type -AssemblyName System.Windows.Forms
+
+# Create OpenFileDialog object
+$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialog.Title = "Select the audio file"
+
+# Show OpenFileDialog
+$openFileDialog.ShowDialog() | Out-Null
+
+# Set API endpoint, model and headers
+$apiEndpoint = "https://api.openai.com/v1/audio/translations"
+$model = "whisper-1"
+$apiKey = "YOURKEY" # Replace with your OpenAI API Key
+$headers = @{
+    "Authorization" = "Bearer $($apiKey)"
+    "Content-Type" = "multipart/form-data"
+}
+
+# Set file path to the selected audio file
+$filePath = $openFileDialog.FileName
+
+# Get the output folder from the selected file's path
+$outputFolder = Split-Path -Path $filePath
+
+# Create a name for the response file
+$responseFileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + ".txt"
+$responseFile = Join-Path -Path $outputFolder -ChildPath $responseFileName
+
+# Create a MultiPartFormDataContent object and add the file and model to it
+$content = New-Object System.Net.Http.MultipartFormDataContent
+$byteArray = [System.IO.File]::ReadAllBytes($filePath)
+$memStream = New-Object System.IO.MemoryStream( $byteArray, 0, $byteArray.Length )
+$streamContent = New-Object System.Net.Http.StreamContent($memStream)
+$content.Add($streamContent, "file", [System.IO.Path]::GetFileName($filePath))
+$content.Add((New-Object System.Net.Http.StringContent($model)), "model")
+
+# Send the POST request
+$response = Invoke-RestMethod -Uri $apiEndpoint -Headers $headers -Method Post -Body $content
+
+# Save the response to a text file
+$response.text | Out-File $responseFile
+
+# Load assemblies for OpenFileDialog and FolderBrowserDialog
+Add-Type -AssemblyName System.Windows.Forms
+
+# Create OpenFileDialog object
+$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialog.Title = "Select the audio file"
+
+# Show OpenFileDialog
+$openFileDialog.ShowDialog() | Out-Null
+
+# Set API endpoint, model and headers
+$apiEndpoint = "https://api.openai.com/v1/audio/translations"
+$model = "whisper-1"
+$apiKey = "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" # Replace with your OpenAI API Key
+$headers = @{
+    "Authorization" = "Bearer $($apiKey)"
+    "Content-Type" = "multipart/form-data"
+}
+
+# Set file path to the selected audio file
+$filePath = $openFileDialog.FileName
+
+# Get the output folder from the selected file's path
+$outputFolder = Split-Path -Path $filePath
+
+# Create a name for the response file
+$responseFileName = [System.IO.Path]::GetFileNameWithoutExtension($filePath) + ".txt"
+$responseFile = Join-Path -Path $outputFolder -ChildPath $responseFileName
+
+# Create a MultiPartFormDataContent object and add the file and model to it
+$content = New-Object System.Net.Http.MultipartFormDataContent
+$byteArray = [System.IO.File]::ReadAllBytes($filePath)
+$memStream = New-Object System.IO.MemoryStream( $byteArray, 0, $byteArray.Length )
+$streamContent = New-Object System.Net.Http.StreamContent($memStream)
+$content.Add($streamContent, "file", [System.IO.Path]::GetFileName($filePath))
+$content.Add((New-Object System.Net.Http.StringContent($model)), "model")
+
+# Send the POST request
+$response = Invoke-RestMethod -Uri $apiEndpoint -Headers $headers -Method Post -Body $content
+
+# Save the response to a text file
+$response.text | Out-File $responseFile
