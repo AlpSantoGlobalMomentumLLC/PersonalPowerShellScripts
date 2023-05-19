@@ -3,6 +3,7 @@
 
 # Axel Christian Lenz 
 # https://www.linkedin.com/in/axellenz/
+# https://github.com/AlpSantoGlobalMomentumLLC/PersonalPowerShellScripts/blob/main/GermanRebootNotifier_GUI_PostponeOptions.ps1
 
 Function Create-GetSchedTime {
     Param( $SchedTime )
