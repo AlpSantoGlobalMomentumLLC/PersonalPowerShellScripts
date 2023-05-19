@@ -26,7 +26,7 @@ Function Create-GetSchedTime {
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 [System.Reflection.Assembly]::LoadWithPartialName( "Microsoft.VisualBasic") | Out-Null
 
-$Title = "Nachricht vom Alixon IT-Helpdesk - Aktion erforderlich"
+$Title = "Nachricht vom AlpSanto IT-Helpdesk - Aktion erforderlich"
 $Message = "Um die Installation von Windows-Updates abzuschließen, ist ein Neustart des Systems unerlässlich. Eine einfache Herunterfahrt genügt nicht. Bitte führen Sie einen Neustart durch."
 $Button1Text = "Jetzt neu starten"
 $Button2Text = "4 Std. Aufschub"
