@@ -4,7 +4,7 @@
 
 # Axel Christian Lenz 
 # https://www.linkedin.com/in/axellenz/
-# https://github.com/AlpSantoGlobalMomentumLLC/PersonalPowerShellScripts/blob/main/GermanRebootNotifier_GUI_PostponeOptions.ps1
+# https://github.com/AlpSantoGlobalMomentumLLC/PersonalPowerShellScripts/blob/main/SoftwareVersionsCompersionViaDLNinjaOne.ps1
 # For NinjaOne you have to run it in the User Context.
 
 # Definiert die URL der Setup-Datei
