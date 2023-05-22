@@ -1,5 +1,6 @@
 #Das Skript "the new german End user nagging reboot script with GUI and postpone options" erstellt ein GUI-Fenster mit einer Nachricht vom IT-Helpdesk. Die Nachricht informiert den Benutzer darüber, dass ein Neustart des Systems erforderlich ist, um die Installation von Windows-Updates abzuschließen. Das GUI enthält drei Schaltflächen: "Jetzt neu starten", "4 Std. Aufschub" und "8 Std. Aufschub". Wenn der Benutzer auf die Schaltfläche "Jetzt neu starten" klickt, wird der Neustart sofort durchgeführt. Wenn der Benutzer auf "4 Std. Aufschub" klickt, wird der Neustart um 4 Stunden verschoben, und wenn der Benutzer auf "8 Std. Aufschub" klickt, wird der Neustart um 8 Stunden verschoben. Das GUI enthält auch einen Timer, der die verbleibende Zeit bis zum Neustart anzeigt. Wenn die Zeit abgelaufen ist, wird der Neustart automatisch durchgeführt. Das Skript verwendet den Befehl "schtasks.exe" zum Erstellen und Löschen von geplanten Aufgaben und den Befehl "shutdown" zum Ausführen des Neustarts.
 # Inspiriert von https://ninjarmm.zendesk.com/hc/en-us/restricted?return_to=https%3A%2F%2Fninjarmm.zendesk.com%2Fhc%2Fen-us%2Fcommunity%2Fposts%2F360057845971-End-user-nagging-reboot-script-with-GUI-and-postpone-options
+# Made for not only for NinjaOne
 
 # Axel Christian Lenz 
 # https://www.linkedin.com/in/axellenz/
