@@ -2,7 +2,7 @@
 
 # Axel Christian Lenz 
 # https://www.linkedin.com/in/axellenz/
-https://github.com/AlpSantoGlobalMomentumLLC/PersonalPowerShellScripts/blob/main/NinjaOneFaildLoginBruteForceAttackDetection.ps1
+# https://github.com/AlpSantoGlobalMomentumLLC/PersonalPowerShellScripts/blob/main/NinjaOneFaildLoginBruteForceAttackDetection.ps1
 # For NinjaOne you have to run it in the User Context.
 
 # Dieses PowerShell-Skript dient zur Erkennung von gescheiterten Anmeldeversuchen auf einem Windows-System. 
