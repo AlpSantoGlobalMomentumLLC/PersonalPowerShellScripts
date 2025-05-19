@@ -53,7 +53,8 @@ if (-not $isListSyntaxValid) {
     } else {
         Write-Host "Der Computer '$CurrentComputerName' wird heruntergefahren."
         try {
-            Stop-Computer -Force -ErrorAction Stop
+            #Stop-Computer -Force -ErrorAction Stop
+            Write-Host "Shutdown ist auskommentiert, für Testzwecke"
         } catch {
             Write-Error "Fehler beim Herunterfahren: $_"
             $global:ExitCode = 2
